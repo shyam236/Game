@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Midnight Embers: The Wheel</title>
+    <style>
+        :root { --crimson: #8b0000; --gold: #ffd700; --dark: #0a0a0a; }
+        body { background: var(--dark); color: white; font-family: 'Georgia', serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; overflow-x: hidden; }
+        .container { width: 95%; max-width: 500px; text-align: center; background: #151515; padding: 20px; border-radius: 40px; border: 2px solid #333; box-shadow: 0 0 100px rgba(139, 0, 0, 0.4); }
+        
+        /* The Wheel Styling */
+        .wheel-container { position: relative; width: 250px; height: 250px; margin: 0 auto 30px; }
+        #wheel { width: 100%; height: 100%; border-radius: 50%; border: 5px solid #222; transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1); background: conic-gradient(#333 0% 25%, #8b0000 25% 50%, #333 50% 75%, #ff004c 75% 100%); }
+        .pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 30px; height: 30px; background: var(--gold); clip-path: polygon(50% 100%, 0 0, 100% 0); z-index: 10; }
+
+        #display-box { min-height: 140px; background: rgba(0,0,0,0.5); border-radius: 20px; padding: 20px; margin-bottom: 20px; border-left: 5px solid var(--crimson); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; line-height: 1.4; font-style: italic; }
+        
+        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        button { padding: 18px; border: none; border-radius: 15px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; transition: 0.3s; }
+        .spin-btn { grid-column: span 2; background: linear-gradient(45deg, var(--crimson), #ff004c); color: white; font-size: 1.1rem; box-shadow: 0 5px 20px rgba(255, 0, 76, 0.4); }
+        .truth-btn { background: #444; color: white; }
+        .dare-btn { background: #eee; color: black; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 style="color:var(--crimson); letter-spacing: 5px;">MIDNIGHT EMBERS</h1>
+    <p style="font-size: 0.8rem; color: #777;">SPIN TO DECIDE FATE</p>
+
+    <div class="wheel-container">
+        <div class="pointer"></div>
+        <div id="wheel"></div>
+    </div>
+
+    <div id="display-box">Spin the wheel to see who takes the heat...</div>
+
+    <div class="controls">
+        <button id="spinBtn" class="spin-btn" onclick="spinWheel()">SPIN THE WHEEL</button>
+        <button class="truth-btn" onclick="getPrompt('truth')">Manual Truth</button>
+        <button class="dare-btn" onclick="getPrompt('dare')">Manual Dare</button>
+    </div>
+</div>
+
+<script>
+const truths = [
+    "What's the one thing you want me to do to you that you're too scared to ask for?",
+    "Describe the 'dirtiest' thing you've ever thought about doing to me in public.",
+    "If I were there right now, what part of my body would you be tasting first?",
+    "What is your 'darkest' romantic fantasy involving being 'pinned down'?",
+    "Tell me about a time you 'pleasured' yourself while thinking of a specific photo of me.",
+    "What is the most 'scandalous' place you've ever had a dirty thought about me?",
+    "If we were in a hotel and the walls were paper-thin, how loud would you be?",
+    "What's the 'wildest' thing you've ever done in the heat of the moment?",
+    "What's one thing you want me to do to you that would make you lose your voice?",
+    "Describe the feeling of my hands on you in three graphic words.",
+    "Which of my features makes you 'pulse' the most when you see it on camera?",
+    "What is a 'rule' you want me to enforce on you tonight?",
+    "Have you ever wanted me to be more 'aggressive' or 'dominant' with you?",
+    "What's the longest you've ever gone thinking about me in a 'spicy' way in one day?",
+    "If you could have me anywhere in your house right now, where would it be?"
+];
+
+const dares = [
+    "Show me exactly how you'd use your mouth on me if I were sitting in front of you.",
+    "Take off one item of clothing using only your teeth and toss it away.",
+    "Put your hand inside your clothes and describe the heat you feel while looking at me.",
+    "Blindfold yourself for the next 2 rounds. You must answer everything 'in the dark'.",
+    "Go to the mirror and show me your favorite 'view' of yourself from behind.",
+    "Whisper your most 'violent' romantic craving into the mic like I'm right there.",
+    "Use a piece of ice or a cold drink to trace a path from your neck to your waist.",
+    "I command you to pose in a way that makes me want to reach through the screen.",
+    "Undo your top button/zipper and leave it like that for the rest of the game.",
+    "Take a 'view-once' photo of your choice and send it to me right now.",
+    "Bite your lip and stare at the camera for 30 seconds without blinking or speaking.",
+    "Show me where you want my 'mark' to be on your body next time we meet.",
+    "Perform a 1-minute 'slow motion' tease without taking anything off.",
+    "Put on your most 'revealing' outfit and come back to the camera in 60 seconds.",
+    "Let me 'control' your hands for 2 minutes. I tell you where they go, you follow."
+];
+
+let currentRotation = 0;
+
+function spinWheel() {
+    const wheel = document.getElementById('wheel');
+    const spinBtn = document.getElementById('spinBtn');
+    const display = document.getElementById('display-box');
+    
+    spinBtn.disabled = true;
+    const extraDegrees = Math.floor(Math.random() * 360) + 1440; // At least 4 full spins
+    currentRotation += extraDegrees;
+    
+    wheel.style.transform = `rotate(${currentRotation}deg)`;
+    
+    setTimeout(() => {
+        spinBtn.disabled = false;
+        const outcome = Math.random() > 0.5 ? 'truth' : 'dare';
+        display.innerText = "THE WHEEL HAS DECIDED: " + outcome.toUpperCase();
+        setTimeout(() => getPrompt(outcome), 1000);
+    }, 4000);
+}
+
+function getPrompt(type) {
+    const list = type === 'truth' ? truths : dares;
+    const text = list[Math.floor(Math.random() * list.length)];
+    const display = document.getElementById('display-box');
+    display.innerText = text;
+    display.style.color = type === 'dare' ? '#ff004c' : '#ffd700';
+}
+</script>
+</body>
+</html>
